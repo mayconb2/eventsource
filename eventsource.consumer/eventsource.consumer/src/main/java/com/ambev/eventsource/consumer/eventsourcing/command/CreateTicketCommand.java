@@ -1,4 +1,4 @@
-package com.ambev.eventsource.consumer.model.eventsource.create;
+package com.ambev.eventsource.consumer.eventsourcing.command;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

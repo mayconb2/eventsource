@@ -1,14 +1,12 @@
-package com.ambev.eventsource.consumer.model.eventsource;
+package com.ambev.eventsource.consumer.eventsourcing;
 
-import com.ambev.eventsource.consumer.model.eventsource.create.CreateTicketCommand;
-import com.ambev.eventsource.consumer.model.eventsource.create.CreateTicketEvent;
-import com.ambev.eventsource.consumer.model.eventsource.update.UpdateTicketCommand;
+import com.ambev.eventsource.consumer.eventsourcing.command.CreateTicketCommand;
+import com.ambev.eventsource.consumer.eventsourcing.command.UpdateTicketCommand;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.CommandHandler;
-import org.axonframework.eventsourcing.EventSourcingHandler;
 import org.axonframework.messaging.MetaData;
 import org.axonframework.modelling.command.AggregateIdentifier;
 import org.axonframework.modelling.command.AggregateLifecycle;

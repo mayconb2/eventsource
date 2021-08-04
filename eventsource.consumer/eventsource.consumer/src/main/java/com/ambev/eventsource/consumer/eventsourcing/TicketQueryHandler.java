@@ -1,8 +1,8 @@
-package com.ambev.eventsource.consumer.model.eventsource;
+package com.ambev.eventsource.consumer.eventsourcing;
 
 import com.ambev.eventsource.consumer.model.Ticket;
-import com.ambev.eventsource.consumer.model.eventsource.create.CreateTicketEvent;
-import com.ambev.eventsource.consumer.model.eventsource.update.UpdateTicketCommand;
+import com.ambev.eventsource.consumer.eventsourcing.event.CreateTicketEvent;
+import com.ambev.eventsource.consumer.eventsourcing.command.UpdateTicketCommand;
 import com.ambev.eventsource.consumer.repository.TicketRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.eventhandling.EventHandler;
