@@ -1,17 +1,16 @@
 package com.ambev.eventsource.consumer.controller;
 
+import com.ambev.eventsource.consumer.model.Ticket;
 import com.ambev.eventsource.consumer.service.TicketService;
 import lombok.extern.slf4j.Slf4j;
-import org.axonframework.eventhandling.GenericDomainEventMessage;
 import org.axonframework.eventsourcing.eventstore.EventStore;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -26,15 +25,30 @@ public class TicketController {
     @Autowired
     private TicketService ticketService;
 
-    @GetMapping("/tickets/{aggregateId}")
+    @GetMapping("/tickets")
+    public ResponseEntity<Object> findAll() {
+        log.info("GET /tickets");
+        List<Ticket> listTickets = ticketService.findAll();
+        return new ResponseEntity<>(listTickets, HttpStatus.OK);
+    }
+
+
+    @GetMapping("/tickets/events/{aggregateId}")
     public ResponseEntity<Object> findByAggregateId(@PathVariable String aggregateId) {
         log.info(String.format("GET /tickets/%s", aggregateId));
-        eventStore.readEvents(aggregateId);
 
         return ResponseEntity.ok().body(eventStore.readEvents(aggregateId)
                 .asStream()
                 .map(this::getStringObjectMap)
                 .collect(Collectors.toList()));
+    }
+
+    @DeleteMapping("/tickets/delete/{aggregateId}")
+    public ResponseEntity<Object> deleteByAggregatedId(@PathVariable String aggregateId) {
+        log.info(String.format("DELETE /tickets/delete/%s", aggregateId));
+        ticketService.delete(aggregateId);
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     private Map<String, Object> getStringObjectMap(org.axonframework.eventhandling.DomainEventMessage<?> s) {

@@ -12,12 +12,24 @@ import java.util.HashMap;
 public interface TicketRepository extends MongoRepository<Ticket, String> {
 
     Logger logger = LoggerFactory.getLogger(TicketRepository.class);
-    HashMap<String, Ticket> ticketStore = new HashMap<>();
+    HashMap<String, Ticket> mapTicket = new HashMap<>();
 
     public default void storeTicket(Ticket ticket) {
-        ticketStore.put(ticket.getId(), ticket);
+        mapTicket.put(ticket.getId(), ticket);
         logger.info("ticket added to repository:::: Current map values ");
-        ticketStore.forEach((k, v) -> logger.info(String.format("Ticket: %s", v)));
+        mapTicket.forEach((k, v) -> logger.info(String.format("Ticket: %s", v)));
+    }
+
+    public default void updateTicket(Ticket ticket) {
+        mapTicket.put(ticket.getId(), ticket);
+        logger.info("ticket updated to repository:::: Current map values ");
+        mapTicket.forEach((k, v) -> logger.info(String.format("Ticket: %s", v)));
+    }
+
+    public default void removeTicket(String aggregateId) {
+        mapTicket.remove(aggregateId);
+        logger.info("ticket removed to repository:::: Current map values ");
+        mapTicket.forEach((k, v) -> logger.info(String.format("Ticket: %s", v)));
     }
 
 }

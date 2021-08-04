@@ -1,13 +1,11 @@
 package com.ambev.eventsource.consumer.eventsourcing.command;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.axonframework.modelling.command.TargetAggregateIdentifier;
 
-@Data
 @AllArgsConstructor
-@NoArgsConstructor
+@Getter
+@Setter
 public class CreateTicketCommand {
 
     @TargetAggregateIdentifier
