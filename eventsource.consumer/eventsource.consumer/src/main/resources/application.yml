@@ -1,0 +1,22 @@
+spring:
+  data:
+    mongodb:
+      uri:
+
+rabbitmq:
+  addresses: localhost:5672
+  exchange: eventExchange
+  queueName: events
+  routingkey: "path"
+
+axoniq:
+  axonserver:
+    event:
+      storage=: /events
+
+
+axon:
+  amqp:
+    exchange: eventExchange
+  axonserver:
+    servers: localhost
