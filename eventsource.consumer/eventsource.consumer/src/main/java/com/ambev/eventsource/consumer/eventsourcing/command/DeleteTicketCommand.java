@@ -8,16 +8,9 @@ import org.axonframework.modelling.command.TargetAggregateIdentifier;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UpdateTicketCommand {
+public class DeleteTicketCommand {
 
     @TargetAggregateIdentifier
     private String id;
 
-    private String title;
-
-    private String status;
-
-    private String description;
 }
-
-
