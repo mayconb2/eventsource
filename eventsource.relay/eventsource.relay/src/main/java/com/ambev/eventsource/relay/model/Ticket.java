@@ -13,6 +13,9 @@ import lombok.NoArgsConstructor;
 public class Ticket {
 
     @JsonProperty
+    private String id;
+
+    @JsonProperty
     private String title;
 
     @JsonProperty
@@ -20,6 +23,5 @@ public class Ticket {
 
     @JsonProperty
     private String description;
-
 
 }

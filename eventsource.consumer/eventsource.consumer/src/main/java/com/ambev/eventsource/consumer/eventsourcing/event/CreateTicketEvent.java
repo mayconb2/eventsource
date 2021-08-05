@@ -5,11 +5,11 @@ import lombok.Value;
 @Value
 public class CreateTicketEvent {
 
-    String id;
+    private final String id;
 
-    String title;
+    private final String title;
 
-    String status;
+    private final String status;
 
-    String description;
+    private final String description;
 }

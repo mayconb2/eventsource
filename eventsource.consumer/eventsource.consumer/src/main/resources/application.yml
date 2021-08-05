@@ -14,9 +14,11 @@ axoniq:
     event:
       storage=: /events
 
-
 axon:
   amqp:
     exchange: eventExchange
   axonserver:
     servers: localhost
+
+server:
+  port: 8081

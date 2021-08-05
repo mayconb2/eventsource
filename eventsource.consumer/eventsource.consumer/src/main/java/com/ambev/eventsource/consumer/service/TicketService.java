@@ -36,7 +36,6 @@ public class TicketService {
         log.info("saving ticket id: " + ticket);
         try {
             Ticket t = ticketRepository.save(ticket);
-            log.info(t.toString());
             CreateTicketCommand command = new CreateTicketCommand(t.getId(), t.getTitle(), t.getStatus(), t.getDescription());
             commandGateway.send(command);
 
@@ -50,7 +49,7 @@ public class TicketService {
         try {
             Ticket t = findById(ticket.getId());
 
-            if (ticket.equals(t)) {
+            if (!ticket.equals(t)) {
                 ticket = ticketRepository.save(ticket);
                 UpdateTicketCommand command = new UpdateTicketCommand(ticket.getId(), ticket.getTitle(), ticket.getStatus(), ticket.getDescription());
                 commandGateway.send(command);

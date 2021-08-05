@@ -5,5 +5,5 @@ import lombok.Value;
 @Value
 public class DeleteTicketEvent {
 
-    String id;
+    private final String id;
 }
