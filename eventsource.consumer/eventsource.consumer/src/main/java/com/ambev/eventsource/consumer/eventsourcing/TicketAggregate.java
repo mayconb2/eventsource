@@ -46,10 +46,8 @@ public class TicketAggregate {
         );
 
 //        Exemple create metaData
-        MetaData metaData = MetaData.with("id", "1234")
-                .and("title", "test create title")
-                .and("status", "test create status")
-                .and("description", "test create description");
+        MetaData metaData = MetaData.with("user", "user_created")
+                .and("date", "date_create");
 
         AggregateLifecycle.apply(ticketCreateEvent, metaData);
     }
@@ -71,12 +69,7 @@ public class TicketAggregate {
 
         UpdateTicketEvent ticketUpdateEvent = new UpdateTicketEvent(updateTicketCommand.getId(), updateTicketCommand.getTitle(), updateTicketCommand.getStatus(), updateTicketCommand.getDescription());
 
-        MetaData metaData = MetaData.with("id", "1234")
-                .and("title", "test create title")
-                .and("status", "test create status")
-                .and("description", "test create description");
-
-        AggregateLifecycle.apply(ticketUpdateEvent, metaData);
+        AggregateLifecycle.apply(ticketUpdateEvent);
     }
 
     @EventSourcingHandler
