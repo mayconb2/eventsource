@@ -1,13 +1,13 @@
-package com.ambev.eventsource.relay;
+package com.ambev.eventsource.consumer;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class Application {
+public class ApplicationConsumer {
 
 	public static void main(String[] args) {
-		SpringApplication.run(Application.class, args);
+		SpringApplication.run(ApplicationConsumer.class, args);
 	}
 
 }

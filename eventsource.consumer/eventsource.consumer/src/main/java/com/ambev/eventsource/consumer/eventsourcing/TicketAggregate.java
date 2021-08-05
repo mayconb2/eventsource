@@ -31,12 +31,19 @@ public class TicketAggregate {
 
     private String description;
 
+    public TicketAggregate(){}
+
     @CommandHandler
     public TicketAggregate(CreateTicketCommand createTicketCommand) {
         this.id = createTicketCommand.getId();
         log.info(String.format("createTicketCommand id: %s", createTicketCommand.getId()));
 
-        CreateTicketCommand ticketCreateEvent = new CreateTicketCommand(createTicketCommand.getId(), createTicketCommand.getTitle(), createTicketCommand.getStatus(), createTicketCommand.getDescription());
+        CreateTicketEvent ticketCreateEvent = new CreateTicketEvent(
+                createTicketCommand.getId(),
+                createTicketCommand.getTitle(),
+                createTicketCommand.getStatus(),
+                createTicketCommand.getDescription()
+        );
 
 //        Exemple create metaData
         MetaData metaData = MetaData.with("id", "1234")
@@ -45,31 +52,6 @@ public class TicketAggregate {
                 .and("description", "test create description");
 
         AggregateLifecycle.apply(ticketCreateEvent, metaData);
-    }
-
-    @CommandHandler
-    public TicketAggregate(UpdateTicketCommand updateTicketCommand) {
-        this.id = updateTicketCommand.getId();
-        log.info(String.format("updateTicketCommand id: %s", updateTicketCommand.getId()));
-
-        UpdateTicketCommand ticketUpdateEvent = new UpdateTicketCommand(updateTicketCommand.getId(), updateTicketCommand.getTitle(), updateTicketCommand.getStatus(), updateTicketCommand.getDescription());
-
-        MetaData metaData = MetaData.with("id", "1234")
-                .and("title", "test create title")
-                .and("status", "test create status")
-                .and("description", "test create description");
-
-        AggregateLifecycle.apply(ticketUpdateEvent, metaData);
-    }
-
-    @CommandHandler
-    public TicketAggregate(DeleteTicketCommand deleteTicketCommand) {
-        this.id = deleteTicketCommand.getId();
-        log.info(String.format("deleteTicketCommand id: %s", deleteTicketCommand.getId()));
-
-        DeleteTicketCommand ticketDeleteEvent = new DeleteTicketCommand(deleteTicketCommand.getId());
-
-        AggregateLifecycle.apply(ticketDeleteEvent);
     }
 
     @EventSourcingHandler
@@ -82,6 +64,21 @@ public class TicketAggregate {
         this.description = createTicketEvent.getDescription();
     }
 
+    @CommandHandler
+    public void on(UpdateTicketCommand updateTicketCommand) {
+        this.id = updateTicketCommand.getId();
+        log.info(String.format("updateTicketCommand id: %s", updateTicketCommand.getId()));
+
+        UpdateTicketEvent ticketUpdateEvent = new UpdateTicketEvent(updateTicketCommand.getId(), updateTicketCommand.getTitle(), updateTicketCommand.getStatus(), updateTicketCommand.getDescription());
+
+        MetaData metaData = MetaData.with("id", "1234")
+                .and("title", "test create title")
+                .and("status", "test create status")
+                .and("description", "test create description");
+
+        AggregateLifecycle.apply(ticketUpdateEvent, metaData);
+    }
+
     @EventSourcingHandler
     public void on(UpdateTicketEvent updateTicketEvent) {
         log.info("Handling {} event: {}", updateTicketEvent.getClass().getSimpleName(), updateTicketEvent);
@@ -90,6 +87,16 @@ public class TicketAggregate {
         this.status = updateTicketEvent.getStatus();
         this.title = updateTicketEvent.getTitle();
         this.description = updateTicketEvent.getDescription();
+    }
+
+    @CommandHandler
+    public void on(DeleteTicketCommand deleteTicketCommand) {
+        this.id = deleteTicketCommand.getId();
+        log.info(String.format("deleteTicketCommand id: %s", deleteTicketCommand.getId()));
+
+        DeleteTicketEvent ticketDeleteEvent = new DeleteTicketEvent(deleteTicketCommand.getId());
+
+        AggregateLifecycle.apply(ticketDeleteEvent);
     }
 
     @EventSourcingHandler
