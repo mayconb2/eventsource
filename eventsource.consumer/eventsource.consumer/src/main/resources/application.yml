@@ -9,16 +9,16 @@ rabbitmq:
   queueName: events
   routingkey: "path"
 
-axoniq:
-  axonserver:
-    event:
-      storage=: /events
+#axoniq:
+#  axonserver:
+#    event:
+#      storage=: /events
 
-axon:
-  amqp:
-    exchange: eventExchange
-  axonserver:
-    servers: localhost
+#axon:
+#  amqp:
+#    exchange: eventExchange
+#  axonserver:
+#    servers: localhost
 
 server:
   port: 8081
