@@ -1,7 +1,7 @@
 spring:
   data:
     mongodb:
-      uri: mongodb+srv://mongo_event_user:0rqUZr19Ieb6YKza@freemayconcluster.hpr7d.mongodb.net/event_source
+      uri:
 
 rabbitmq:
   addresses: localhost:5672
