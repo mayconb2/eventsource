@@ -1,7 +1,7 @@
 spring:
   data:
     mongodb:
-      uri:
+      uri: mongodb+srv://mongo_event_user:0rqUZr19Ieb6YKza@freemayconcluster.hpr7d.mongodb.net/event_source
 
 rabbitmq:
   addresses: localhost:5672
@@ -18,7 +18,11 @@ axon:
   amqp:
     exchange: eventExchange
   axonserver:
-    servers: localhost
+    servers: "${AXON_SERVER:localhost}"
+  eventhandling:
+    processors:
+      name:
+        mode: tracking
 
 server:
   port: 8081
