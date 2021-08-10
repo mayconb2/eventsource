@@ -10,6 +10,7 @@ import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -44,20 +45,44 @@ public class TicketService {
         }
     }
 
-    public void update(Ticket ticket) {
-        log.info("updating ticket id: " + ticket);
+    public void update(Ticket ticketNew) {
+        log.info("updating ticket new: " + ticketNew);
         try {
-            Ticket t = findById(ticket.getId());
+            Ticket ticketOld = findById(ticketNew.getId());
+            log.info("updating ticket old: " + ticketOld);
 
-            if (!ticket.equals(t)) {
-                ticket = ticketRepository.save(ticket);
-                UpdateTicketCommand command = new UpdateTicketCommand(ticket.getId(), ticket.getTitle(), ticket.getStatus(), ticket.getDescription());
+            if (!ticketNew.equals(ticketOld)) {
+                ticketOld = changeOnlyChangedFields(ticketOld, ticketNew);
+                log.info("updating ticket old A new: " + ticketOld);
+                ticketRepository.save(ticketOld);
+                UpdateTicketCommand command = new UpdateTicketCommand(ticketNew.getId(), ticketNew.getTitle(), ticketNew.getStatus(), ticketNew.getDescription());
                 commandGateway.send(command);
             }
 
         } catch (Exception e) {
             log.error("Update ticket ERROR: " + e.getMessage());
         }
+    }
+
+    private Ticket changeOnlyChangedFields(Ticket ticketOld, Ticket ticketNew) {
+
+        Arrays.stream(ticketOld.getClass().getDeclaredFields())
+                .sequential().forEach(field ->{
+
+            try {
+                field.setAccessible(true);
+
+                if(field.get(ticketNew) != null) {
+                    if(field.get(ticketNew) != field.get(ticketOld)){
+                        field.set(ticketOld, field.get(ticketNew));
+                    }
+                }
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        });
+
+        return ticketOld;
     }
 
     public void delete(String aggregateId) {

@@ -18,7 +18,11 @@ axon:
   amqp:
     exchange: eventExchange
   axonserver:
-    servers: localhost
+    servers: "${AXON_SERVER:localhost}"
+  eventhandling:
+    processors:
+      name:
+        mode: tracking
 
 server:
   port: 8081

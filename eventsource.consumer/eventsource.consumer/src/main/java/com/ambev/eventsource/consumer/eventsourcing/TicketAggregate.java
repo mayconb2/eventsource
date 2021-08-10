@@ -6,6 +6,7 @@ import com.ambev.eventsource.consumer.eventsourcing.command.UpdateTicketCommand;
 import com.ambev.eventsource.consumer.eventsourcing.event.CreateTicketEvent;
 import com.ambev.eventsource.consumer.eventsourcing.event.DeleteTicketEvent;
 import com.ambev.eventsource.consumer.eventsourcing.event.UpdateTicketEvent;
+import com.ambev.eventsource.consumer.eventsourcing.event.UpdateTicketMapEvent;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,8 @@ import org.axonframework.messaging.MetaData;
 import org.axonframework.modelling.command.AggregateIdentifier;
 import org.axonframework.modelling.command.AggregateLifecycle;
 import org.axonframework.spring.stereotype.Aggregate;
+
+import java.util.*;
 
 @Aggregate
 @Getter
@@ -35,7 +38,7 @@ public class TicketAggregate {
 
     @CommandHandler
     public TicketAggregate(CreateTicketCommand createTicketCommand) {
-        this.id = createTicketCommand.getId();
+        //this.id = createTicketCommand.getId();
         log.info(String.format("createTicketCommand id: %s", createTicketCommand.getId()));
 
         CreateTicketEvent ticketCreateEvent = new CreateTicketEvent(
@@ -46,10 +49,8 @@ public class TicketAggregate {
         );
 
 //        Exemple create metaData
-        MetaData metaData = MetaData.with("id", "1234")
-                .and("title", "test create title")
-                .and("status", "test create status")
-                .and("description", "test create description");
+        MetaData metaData = MetaData.with("userId", "1234")
+                .and("eventType", createTicketCommand.getClass().getSimpleName());
 
         AggregateLifecycle.apply(ticketCreateEvent, metaData);
     }
@@ -66,17 +67,35 @@ public class TicketAggregate {
 
     @CommandHandler
     public void on(UpdateTicketCommand updateTicketCommand) {
-        this.id = updateTicketCommand.getId();
+        //this.id = updateTicketCommand.getId();
         log.info(String.format("updateTicketCommand id: %s", updateTicketCommand.getId()));
 
-        UpdateTicketEvent ticketUpdateEvent = new UpdateTicketEvent(updateTicketCommand.getId(), updateTicketCommand.getTitle(), updateTicketCommand.getStatus(), updateTicketCommand.getDescription());
+        //UpdateTicketEvent ticketUpdateEvent = new UpdateTicketEvent(updateTicketCommand.getId(), updateTicketCommand.getTitle(), updateTicketCommand.getStatus(), updateTicketCommand.getDescription());
+        UpdateTicketMapEvent ticketUpdateEvent = getMapEvents(updateTicketCommand);
 
-        MetaData metaData = MetaData.with("id", "1234")
-                .and("title", "test create title")
-                .and("status", "test create status")
-                .and("description", "test create description");
+        MetaData metaData = MetaData.with("userId", "1234")
+                .and("eventType", updateTicketCommand.getClass().getSimpleName());
 
-        AggregateLifecycle.apply(ticketUpdateEvent, metaData);
+        AggregateLifecycle.apply(ticketUpdateEvent.getFieldsChanged(), metaData);
+    }
+
+    private UpdateTicketMapEvent getMapEvents(UpdateTicketCommand updateTicketCommand) {
+        Map<String, Object> fieldsChanged = new HashMap();
+
+        Arrays.stream(updateTicketCommand.getClass().getDeclaredFields())
+                .sequential().forEach(field ->{
+
+            try {
+                field.setAccessible(true);
+                if(field.get(updateTicketCommand) != null) {
+                    fieldsChanged.put(field.getName(), field.get(updateTicketCommand));
+                }
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        });
+
+        return new UpdateTicketMapEvent(fieldsChanged);
     }
 
     @EventSourcingHandler
@@ -96,7 +115,10 @@ public class TicketAggregate {
 
         DeleteTicketEvent ticketDeleteEvent = new DeleteTicketEvent(deleteTicketCommand.getId());
 
-        AggregateLifecycle.apply(ticketDeleteEvent);
+        MetaData metaData = MetaData.with("userId", "1234")
+                .and("eventType", deleteTicketCommand.getClass().getSimpleName());
+
+        AggregateLifecycle.apply(ticketDeleteEvent, metaData);
     }
 
     @EventSourcingHandler
