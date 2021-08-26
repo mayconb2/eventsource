@@ -1,8 +1,6 @@
 package com.ambev.eventsource.consumer.service;
 
-import com.ambev.eventsource.consumer.eventsourcing.command.CreateTicketCommand;
-import com.ambev.eventsource.consumer.eventsourcing.command.DeleteTicketCommand;
-import com.ambev.eventsource.consumer.eventsourcing.command.UpdateTicketCommand;
+import com.ambev.eventsource.consumer.eventsourcing.command.*;
 import com.ambev.eventsource.consumer.model.Ticket;
 import com.ambev.eventsource.consumer.repository.TicketRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +35,7 @@ public class TicketService {
         log.info("saving ticket id: " + ticket);
         try {
             Ticket t = ticketRepository.save(ticket);
-            CreateTicketCommand command = new CreateTicketCommand(t.getId(), t.getTitle(), t.getStatus(), t.getDescription());
+            CreateCommand command = new CreateCommand(t.getId(), t);
             commandGateway.send(command);
 
         } catch (Exception e) {
@@ -55,7 +53,7 @@ public class TicketService {
                 ticketOld = changeOnlyChangedFields(ticketOld, ticketNew);
                 log.info("updating ticket old A new: " + ticketOld);
                 ticketRepository.save(ticketOld);
-                UpdateTicketCommand command = new UpdateTicketCommand(ticketNew.getId(), ticketNew.getTitle(), ticketNew.getStatus(), ticketNew.getDescription());
+                UpdateCommand command = new UpdateCommand(ticketNew.getId(), ticketNew);
                 commandGateway.send(command);
             }
 
@@ -88,8 +86,8 @@ public class TicketService {
     public void delete(String aggregateId) {
         log.info("deleting ticket id: " + aggregateId);
         try {
-            ticketRepository.removeTicket(aggregateId);
-            DeleteTicketCommand command = new DeleteTicketCommand(aggregateId);
+            ticketRepository.deleteById(aggregateId);
+            DeleteCommand command = new DeleteCommand(aggregateId);
             commandGateway.send(command);
 
         } catch (Exception e) {

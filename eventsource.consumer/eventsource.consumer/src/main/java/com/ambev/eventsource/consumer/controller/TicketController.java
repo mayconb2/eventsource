@@ -32,6 +32,21 @@ public class TicketController {
         return new ResponseEntity<>(listTickets, HttpStatus.OK);
     }
 
+    @PostMapping("/tickets")
+    public ResponseEntity<Object> insert( @RequestBody Ticket ticket) {
+
+        ticketService.save(ticket);
+        return new ResponseEntity<>("OK", HttpStatus.OK);
+    }
+
+    @PutMapping("/tickets/{id}")
+    public ResponseEntity<Object> insert(@PathVariable String id, @RequestBody Ticket ticket) {
+
+        ticket.setId(id);
+        ticketService.update(ticket);
+        return new ResponseEntity<>("OK", HttpStatus.OK);
+    }
+
 
     @GetMapping("/tickets/events/{aggregateId}")
     public ResponseEntity<Object> findByAggregateId(@PathVariable String aggregateId) {
