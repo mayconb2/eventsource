@@ -10,4 +10,8 @@ public class DeleteCommand {
 
     @TargetAggregateIdentifier
     private String id;
+
+    private String country;
+
+    private String userId;
 }

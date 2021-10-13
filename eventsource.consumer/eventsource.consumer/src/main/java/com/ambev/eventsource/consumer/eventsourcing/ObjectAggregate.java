@@ -1,10 +1,15 @@
 package com.ambev.eventsource.consumer.eventsourcing;
 
-import com.ambev.eventsource.consumer.eventsourcing.command.*;
+
+import com.ambev.eventsource.consumer.eventsourcing.command.CreateCommand;
+import com.ambev.eventsource.consumer.eventsourcing.command.DeleteCommand;
+import com.ambev.eventsource.consumer.eventsourcing.command.UpdateCommand;
 import com.ambev.eventsource.consumer.eventsourcing.event.CreateEvent;
 import com.ambev.eventsource.consumer.eventsourcing.event.DeleteEvent;
 import com.ambev.eventsource.consumer.eventsourcing.event.UpdateEvent;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.CommandHandler;
@@ -13,6 +18,7 @@ import org.axonframework.messaging.MetaData;
 import org.axonframework.modelling.command.AggregateIdentifier;
 import org.axonframework.modelling.command.AggregateLifecycle;
 import org.axonframework.spring.stereotype.Aggregate;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Arrays;
 
@@ -20,28 +26,32 @@ import java.util.Arrays;
 @Getter
 @Setter
 @Slf4j
+@NoArgsConstructor
+@AllArgsConstructor
 public class ObjectAggregate {
 
     @AggregateIdentifier
     private String id;
 
-    public ObjectAggregate(){}
+    private String country;
 
     ////////////////////////////Create Event ////////////////////////////////////////////////////////////
     @CommandHandler
     public ObjectAggregate(CreateCommand createCommand) {
         this.id = createCommand.getId();
+        this.country = createCommand.getCountry();
         Object command = createCommand.getCommand();
         log.info(String.format("createObjectCommand id: %s", command));
 
         CreateEvent createEvent = getCreateEventsFromCommand(command);
+        createEvent.put("id", createCommand.getId());
 
-        MetaData metaData = createMetadata(createCommand, command);
-        
+        MetaData metaData = createMetadata(createCommand, command, createCommand.getUserId());
+
         AggregateLifecycle.apply(createEvent, metaData);
     }
 
-    private CreateEvent getCreateEventsFromCommand(Object createCommand) {
+    public CreateEvent getCreateEventsFromCommand(Object createCommand) {
         CreateEvent fieldsCreated = new CreateEvent();
 
         Arrays.stream(createCommand.getClass().getDeclaredFields()).sequential().forEach(field ->{
@@ -67,18 +77,20 @@ public class ObjectAggregate {
 
     @CommandHandler
     public void on(UpdateCommand updateCommand) {
-        //this.id = updateCommand.getId();
+        this.id = updateCommand.getId();
+        this.country = updateCommand.getCountry();
         Object command = updateCommand.getCommand();
         log.info(String.format("updateCommand id: %s", command));
 
         UpdateEvent updateEvent = getUpdateEventsFromCommand(command);
+        updateEvent.put("id", updateCommand.getId());
 
-        MetaData metaData = createMetadata(updateCommand, command);
+        MetaData metaData = createMetadata(updateCommand, command, updateCommand.getUserId());
 
         AggregateLifecycle.apply(updateEvent, metaData);
     }
 
-    private UpdateEvent getUpdateEventsFromCommand(Object updateCommand) {
+    public UpdateEvent getUpdateEventsFromCommand(Object updateCommand) {
         UpdateEvent fieldsChanged = new UpdateEvent();
 
         Arrays.stream(updateCommand.getClass().getDeclaredFields()).sequential().forEach(field ->{
@@ -105,16 +117,18 @@ public class ObjectAggregate {
     @CommandHandler
     public void on(DeleteCommand deleteCommand) {
         this.id = deleteCommand.getId();
+        this.country = deleteCommand.getCountry();
         log.info(String.format("deleteObjectCommand id: %s", deleteCommand));
 
         DeleteEvent deleteEvent = getDeleteEventsFromCommand(deleteCommand);
+        deleteEvent.put("id", deleteCommand.getId());
 
-        MetaData metaData = createMetadata(deleteCommand, null);
+        MetaData metaData = createMetadata(deleteCommand, null, deleteCommand.getUserId());
 
         AggregateLifecycle.apply(deleteEvent, metaData);
     }
 
-    private DeleteEvent getDeleteEventsFromCommand(Object deleteCommand) {
+    public DeleteEvent getDeleteEventsFromCommand(Object deleteCommand) {
         DeleteEvent objectDeleted = new DeleteEvent();
 
         Arrays.stream(deleteCommand.getClass().getDeclaredFields()).sequential().forEach(field ->{
@@ -138,15 +152,15 @@ public class ObjectAggregate {
 
     /////////////////METADATA ////////////////////////////////////////////////////////////////////////////////////
 
-    private MetaData createMetadata(Object command, Object object) {
+    public MetaData createMetadata(Object command, Object object, String userId) {
         String type = command.getClass().getSimpleName();
         if(object != null){
             type += object.getClass().getSimpleName();
         }
 
         return MetaData
-                .with("userId", "1234")
-                .with("country", "BR")
+                .with("country", this.country)
+                .and("userIdentifier", userId)
                 .and("eventType", type);
     }
 

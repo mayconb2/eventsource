@@ -11,5 +11,9 @@ public class UpdateCommand {
     @TargetAggregateIdentifier
     private String id;
 
+    private String country;
+
     private Object command;
+
+    private String userId;
 }

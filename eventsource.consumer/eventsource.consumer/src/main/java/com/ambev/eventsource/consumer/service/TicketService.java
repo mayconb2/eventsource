@@ -1,6 +1,7 @@
 package com.ambev.eventsource.consumer.service;
 
 import com.ambev.eventsource.consumer.eventsourcing.command.*;
+import com.ambev.eventsource.consumer.model.TaskEntity;
 import com.ambev.eventsource.consumer.model.Ticket;
 import com.ambev.eventsource.consumer.repository.TicketRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +36,11 @@ public class TicketService {
         log.info("saving ticket id: " + ticket);
         try {
             Ticket t = ticketRepository.save(ticket);
-            CreateCommand command = new CreateCommand(t.getId(), t);
+            CreateCommand command = new CreateCommand(t.getId(), "br", t, "user");
+            commandGateway.send(command);
+            //commandGateway.send(new UpdateCommand(t.getId(), t, ));
+
+            command = new CreateCommand(t.getId(), "br", new TaskEntity(), "user");
             commandGateway.send(command);
 
         } catch (Exception e) {
@@ -53,8 +58,7 @@ public class TicketService {
                 ticketOld = changeOnlyChangedFields(ticketOld, ticketNew);
                 log.info("updating ticket old A new: " + ticketOld);
                 ticketRepository.save(ticketOld);
-                UpdateCommand command = new UpdateCommand(ticketNew.getId(), ticketNew);
-                commandGateway.send(command);
+                commandGateway.send(new UpdateCommand(ticketNew.getId(), "br", ticketNew, "user"));
             }
 
         } catch (Exception e) {
@@ -87,7 +91,7 @@ public class TicketService {
         log.info("deleting ticket id: " + aggregateId);
         try {
             ticketRepository.deleteById(aggregateId);
-            DeleteCommand command = new DeleteCommand(aggregateId);
+            DeleteCommand command = new DeleteCommand(aggregateId, "br", "user");
             commandGateway.send(command);
 
         } catch (Exception e) {
